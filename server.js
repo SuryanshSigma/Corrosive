@@ -33,7 +33,7 @@ app.post('/signin', async (req, res) => {
         } else {
             const { data: newUser, error: insertError } = await supabase
                 .from('users')
-                .insert([{ email, password, xp: 0 }])
+                .insert([{ email, password, xp: 0, role: 'user' }])
                 .select()
                 .single();
 
@@ -47,12 +47,12 @@ app.post('/signin', async (req, res) => {
     }
 });
 
-// 2. Leaderboard Route
+// 2. Leaderboard Route (Now includes role/badges)
 app.get('/leaderboard', async (req, res) => {
     try {
         const { data: users, error } = await supabase
             .from('users')
-            .select('email, xp')
+            .select('email, xp, role')
             .order('xp', { ascending: false });
 
         if (error) throw error;
@@ -91,6 +91,39 @@ app.post('/update-xp', async (req, res) => {
     } catch (err) {
         console.error('Update XP Error:', err);
         return res.status(500).json({ success: false, message: 'Error updating XP' });
+    }
+});
+
+// 4. Admin: Get all users
+app.get('/admin/users', async (req, res) => {
+    try {
+        const { data: users, error } = await supabase
+            .from('users')
+            .select('email, xp, role')
+            .order('xp', { ascending: false });
+
+        if (error) throw error;
+        res.json(users || []);
+    } catch (err) {
+        console.error('Admin Fetch Error:', err);
+        res.status(500).json({ success: false, message: 'Failed to fetch users' });
+    }
+});
+
+// 5. Admin: Update user role / badge
+app.post('/admin/update-role', async (req, res) => {
+    const { email, role } = req.body;
+    try {
+        const { error } = await supabase
+            .from('users')
+            .update({ role })
+            .eq('email', email);
+
+        if (error) throw error;
+        res.json({ success: true, message: 'Role updated successfully' });
+    } catch (err) {
+        console.error('Update Role Error:', err);
+        res.status(500).json({ success: false, message: 'Failed to update role' });
     }
 });
 

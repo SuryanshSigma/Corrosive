@@ -14,6 +14,31 @@
             color: #FFA500; /* Orange text */
         }
 
+        /* Admin Button on Top Left Corner */
+        .admin-btn {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            font-family: Arial, sans-serif;
+            font-size: 1.2em;
+            color: #000;
+            text-decoration: none;
+            background-color: #FFA500;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px #FFA500;
+            border: none;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .admin-btn:hover {
+            background-color: #FF8C00;
+            box-shadow: 0 0 20px #FF8C00, 0 0 30px #FF4500;
+            transform: scale(1.1);
+        }
+
         .top-right-buttons {
             position: fixed;
             top: 10px;
@@ -135,6 +160,9 @@
     </style>
 </head>
 <body>
+    <!-- Top Left Admin Button -->
+    <a href="admin.html" class="admin-btn" title="Open Admin Panel">🔨</a>
+
     <!-- Top Right Buttons / User Status -->
     <div class="top-right-buttons" id="top-right-buttons">
         <!-- Dynamically populated -->
@@ -187,7 +215,7 @@
             window.location.reload();
         }
 
-        // Fetch and render the XP leaderboard from the server
+        // Fetch and render the XP leaderboard from the server including badges
         async function loadLeaderboard() {
             try {
                 const response = await fetch('http://localhost:3000/leaderboard');
@@ -203,7 +231,13 @@
 
                 leaderboard.forEach((user, index) => {
                     const li = document.createElement('li');
-                    li.innerHTML = `<span>#${index + 1} ${user.email}</span> <strong>${user.xp} XP</strong>`;
+                    
+                    let badge = '';
+                    if (user.role === 'owner') badge = ' 👑';
+                    else if (user.role === 'admin') badge = ' 🛡️';
+                    else if (user.role === 'partner') badge = ' ✔️';
+
+                    li.innerHTML = `<span>#${index + 1} ${user.email}${badge}</span> <strong>${user.xp} XP</strong>`;
                     listElement.appendChild(li);
                 });
             } catch (error) {
