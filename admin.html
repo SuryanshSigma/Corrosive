@@ -55,7 +55,7 @@
 
     <script>
         const ADMIN_SECRET = "900566";
-        const API_URL = "https://small-eyes-press.loca.lt"; // Localtunnel URL
+        const API_URL = "https://corrosive.onrender.com"; // Updated Localtunnel URL
 
         function checkPassword() {
             const pass = document.getElementById('adminPassword').value;
@@ -70,7 +70,9 @@
 
         async function loadUsers() {
             try {
-                const res = await fetch(`${API_URL}/admin/users`);
+                const res = await fetch(`${API_URL}/admin/users`, {
+                    headers: { 'Bypass-Tunnel-Reminder': 'true' }
+                });
                 const users = await res.json();
                 const tbody = document.getElementById('userTableBody');
                 tbody.innerHTML = '';
@@ -83,7 +85,7 @@
                 users.forEach(u => {
                     let badgeDisplay = 'User';
                     if (u.role === 'owner') badgeDisplay = '👑 Owner';
-                    else if (u.role === 'admin') badgeDisplay = '🛡 Admin';
+                    else if (u.role === 'admin') badgeDisplay = '🛡️ Admin';
                     else if (u.role === 'partner') badgeDisplay = '✔️ Partner';
 
                     tbody.innerHTML += `
@@ -110,7 +112,10 @@
             try {
                 const res = await fetch(`${API_URL}/admin/update-role`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Bypass-Tunnel-Reminder': 'true'
+                    },
                     body: JSON.stringify({ email, role })
                 });
                 const data = await res.json();
@@ -129,7 +134,10 @@
                 try {
                     const res = await fetch(`${API_URL}/admin/ban-user`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Bypass-Tunnel-Reminder': 'true'
+                        },
                         body: JSON.stringify({ email })
                     });
                     const data = await res.json();
