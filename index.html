@@ -161,7 +161,7 @@
 </head>
 <body>
     <!-- Top Left Admin Button -->
-    <a href="admin.html" class="admin-btn" title="Open Admin Panel">🔨</a>
+    <a href="admin.html" class="admin-btn" title="Open Admin Panel">ðŸ”¨</a>
 
     <!-- Top Right Buttons / User Status -->
     <div class="top-right-buttons" id="top-right-buttons">
@@ -181,7 +181,7 @@
 
     <!-- Leaderboard Section -->
     <div class="leaderboard-container">
-        <h3>🏆 XP Leaderboard</h3>
+        <h3>ðŸ† XP Leaderboard</h3>
         <ul class="leaderboard-list" id="leaderboard-list">
             <li>Loading leaderboard...</li>
         </ul>
@@ -192,6 +192,9 @@
     </div>
 
     <script>
+        // Localtunnel URL configuration for multi-device support
+        const API_URL = 'https://loose-geese-add.loca.lt';
+
         // Check sign-in state from localStorage
         const isSignedIn = localStorage.getItem('isSignedIn') === 'true';
         const userEmail = localStorage.getItem('userEmail');
@@ -199,7 +202,7 @@
 
         if (isSignedIn && userEmail) {
             topRightButtons.innerHTML = `
-                <span>👤 ${userEmail}</span>
+                <span>ðŸ‘¤ ${userEmail}</span>
                 <button onclick="logOut()">Log Out</button>
             `;
         } else {
@@ -218,7 +221,7 @@
         // Fetch and render the XP leaderboard from the server including badges
         async function loadLeaderboard() {
             try {
-                const response = await fetch('http://localhost:3000/leaderboard');
+                const response = await fetch(`${API_URL}/leaderboard`);
                 const leaderboard = await response.json();
                 
                 const listElement = document.getElementById('leaderboard-list');
@@ -233,9 +236,9 @@
                     const li = document.createElement('li');
                     
                     let badge = '';
-                    if (user.role === 'owner') badge = ' 👑';
-                    else if (user.role === 'admin') badge = ' 🛡️';
-                    else if (user.role === 'partner') badge = ' ✔️';
+                    if (user.role === 'owner') badge = ' ðŸ‘‘';
+                    else if (user.role === 'admin') badge = ' ðŸ›¡ï¸';
+                    else if (user.role === 'partner') badge = ' âœ”ï¸';
 
                     li.innerHTML = `<span>#${index + 1} ${user.email}${badge}</span> <strong>${user.xp} XP</strong>`;
                     listElement.appendChild(li);

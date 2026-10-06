@@ -5,7 +5,7 @@
     <title>Corrosive Admin Panel</title>
     <style>
         body { font-family: Arial, sans-serif; background: #000; color: #FFA500; padding: 20px; text-align: center; }
-        .login-box, .admin-panel { max-width: 650px; margin: 40px auto; background: #111; border: 2px solid #FFA500; padding: 30px; border-radius: 10px; box-shadow: 0 0 15px #FFA500; }
+        .login-box, .admin-panel { max-width: 700px; margin: 40px auto; background: #111; border: 2px solid #FFA500; padding: 30px; border-radius: 10px; box-shadow: 0 0 15px #FFA500; }
         .hidden { display: none; }
         input[type="password"] { padding: 10px; width: 60%; background: #222; border: 1px solid #FFA500; color: white; border-radius: 4px; margin-right: 10px; }
         table { width: 100%; margin-top: 20px; border-collapse: collapse; }
@@ -17,6 +17,8 @@
         .btn-admin { background: #2196F3; color: white; }
         .btn-partner { background: #9c27b0; color: white; }
         .btn-reset { background: #444; color: white; }
+        .btn-block { background: #ff4444; color: white; }
+        .btn-block:hover { background: #cc0000; }
         .btn-save { background: #FFA500; color: #000; padding: 12px 24px; font-size: 1.1em; font-weight: bold; margin-top: 25px; border-radius: 5px; cursor: pointer; box-shadow: 0 0 10px #FFA500; transition: 0.3s; }
         .btn-save:hover { background: #FF8C00; box-shadow: 0 0 20px #FF8C00; transform: scale(1.05); }
     </style>
@@ -34,13 +36,13 @@
     <!-- Admin Panel -->
     <div id="adminSection" class="admin-panel hidden">
         <h2>👑 Corrosive User Management</h2>
-        <p>Assign Owner, Admin, or Partner badges to users live.</p>
+        <p>Assign badges or ban users live.</p>
         <table>
             <thead>
                 <tr>
                     <th>User Email</th>
                     <th>XP</th>
-                    <th>Current Badge</th>
+                    <th>Badge</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -52,7 +54,8 @@
     </div>
 
     <script>
-        const ADMIN_SECRET = "900566"; // Admin password
+        const ADMIN_SECRET = "900566";
+        const API_URL = "https://small-eyes-press.loca.lt"; // Localtunnel URL
 
         function checkPassword() {
             const pass = document.getElementById('adminPassword').value;
@@ -67,7 +70,7 @@
 
         async function loadUsers() {
             try {
-                const res = await fetch('/admin/users');
+                const res = await fetch(`${API_URL}/admin/users`);
                 const users = await res.json();
                 const tbody = document.getElementById('userTableBody');
                 tbody.innerHTML = '';
@@ -80,7 +83,7 @@
                 users.forEach(u => {
                     let badgeDisplay = 'User';
                     if (u.role === 'owner') badgeDisplay = '👑 Owner';
-                    else if (u.role === 'admin') badgeDisplay = '🛡️️ Admin';
+                    else if (u.role === 'admin') badgeDisplay = '🛡 Admin';
                     else if (u.role === 'partner') badgeDisplay = '✔️ Partner';
 
                     tbody.innerHTML += `
@@ -91,8 +94,9 @@
                             <td>
                                 <button class="btn-owner" onclick="setRole('${u.email}', 'owner')" title="Make Owner">👑</button>
                                 <button class="btn-admin" onclick="setRole('${u.email}', 'admin')" title="Make Admin">🛡️</button>
-                                <button class="btn-partner" onclick="setRole('${u.email}', 'partner')" title="Make Partner">✔️</button>
-                                <button class="btn-reset" onclick="setRole('${u.email}', 'user')" title="Remove Badges">Reset</button>
+                                <button class="btn-partner" onclick="setRole('${u.email}', 'partner')" title="Make Partner">✔</button>
+                                <button class="btn-reset" onclick="setRole('${u.email}', 'user')" title="Reset Role">Reset</button>
+                                <button class="btn-block" onclick="banUser('${u.email}')" title="Ban User">🚫</button>
                             </td>
                         </tr>
                     `;
@@ -104,7 +108,7 @@
 
         async function setRole(email, role) {
             try {
-                const res = await fetch('/admin/update-role', {
+                const res = await fetch(`${API_URL}/admin/update-role`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, role })
@@ -120,8 +124,27 @@
             }
         }
 
+        async function banUser(email) {
+            if (confirm(`Are you sure you want to ban ${email}? This will delete their account.`)) {
+                try {
+                    const res = await fetch(`${API_URL}/admin/ban-user`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        loadUsers();
+                    } else {
+                        alert('Failed to ban user.');
+                    }
+                } catch (err) {
+                    console.error('Error banning user:', err);
+                }
+            }
+        }
+
         function saveAndReturn() {
-            // Redirects back to index.html (or server root)
             window.location.href = 'index.html';
         }
     </script>
